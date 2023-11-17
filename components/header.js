@@ -27,6 +27,8 @@ import HiddenWalletSummary from './hidden-wallet-summary'
 import { clearNotifications } from '../lib/badge'
 import { useServiceWorker } from './serviceworker'
 import SubSelect from './sub-select'
+import { useShowModal } from './modal'
+import SwitchAccountDialog from './switch-account'
 
 function WalletSummary ({ me }) {
   if (!me) return null
@@ -86,6 +88,7 @@ function NotificationBell () {
 
 function NavProfileMenu ({ me, dropNavKey }) {
   const { registration: swRegistration, togglePushSubscription } = useServiceWorker()
+  const showModal = useShowModal()
   return (
     <div className='position-relative'>
       <Dropdown className={styles.dropdown} align='end'>
@@ -124,6 +127,7 @@ function NavProfileMenu ({ me, dropNavKey }) {
             </Link>
           </div>
           <Dropdown.Divider />
+          <Dropdown.Item onClick={() => showModal(onClose => <SwitchAccountDialog onClose={onClose} />)}>switch account</Dropdown.Item>
           <Dropdown.Item
             onClick={async () => {
               try {

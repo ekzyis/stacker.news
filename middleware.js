@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-export function middleware (request) {
+const referrerMiddleware = (request) => {
   const regex = /(\/.*)?\/r\/([\w_]+)/
   const m = regex.exec(request.nextUrl.pathname)
 
@@ -13,6 +13,23 @@ export function middleware (request) {
   return resp
 }
 
-export const config = {
-  matcher: ['/(.*/|)r/([\\w_]+)([?#]?.*)']
+const multiAuthMiddleware = (request) => {
+  // switch next-auth session cookie with multi_auth cookie if cookie pointer present
+  const userId = request.cookies?.get('multi_auth.user-id')?.value
+  const sessionCookieName = '__Secure-next-auth.session-token'
+  const hasSession = request.cookies?.has(sessionCookieName)
+  if (userId && hasSession) {
+    const userJWT = request.cookies.get(`multi_auth.${userId}`)?.value
+    if (userJWT) request.cookies.set(sessionCookieName, userJWT)
+  }
+  const response = NextResponse.next({ request })
+  return response
+}
+
+export function middleware (request) {
+  const referrerRegexp = /(\/.*)?\/r\/([\w_]+)/
+  if (referrerRegexp.test(request.nextUrl.pathname)) {
+    return referrerMiddleware(request)
+  }
+  return multiAuthMiddleware(request)
 }

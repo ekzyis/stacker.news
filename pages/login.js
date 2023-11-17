@@ -6,7 +6,7 @@ import { StaticLayout } from '../components/layout'
 import Login from '../components/login'
 import { isExternal } from '../lib/url'
 
-export async function getServerSideProps ({ req, res, query: { callbackUrl, error = null } }) {
+export async function getServerSideProps ({ req, res, query: { callbackUrl, multiAuth = false, error = null } }) {
   const session = await getServerSession(req, res, getAuthOptions(req))
 
   // prevent open redirects. See https://github.com/stackernews/stacker.news/issues/264
@@ -22,9 +22,9 @@ export async function getServerSideProps ({ req, res, query: { callbackUrl, erro
     callbackUrl = '/'
   }
 
-  if (session && callbackUrl) {
-    // in the cause of auth linking we want to pass the error back to
-    // settings
+  if (session && callbackUrl && !multiAuth) {
+    // in the cause of auth linking we want to pass the error back to settings
+    // in the case of multiauth, don't redirect if there is already a session
     if (error) {
       const url = new URL(callbackUrl, process.env.PUBLIC_URL)
       url.searchParams.set('error', error)
@@ -43,7 +43,8 @@ export async function getServerSideProps ({ req, res, query: { callbackUrl, erro
     props: {
       providers: await getProviders(),
       callbackUrl,
-      error
+      error,
+      multiAuth
     }
   }
 }

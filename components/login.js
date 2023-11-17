@@ -48,12 +48,12 @@ export function authErrorMessage (error) {
   return error && (authErrorMessages[error] ?? authErrorMessages.default)
 }
 
-export default function Login ({ providers, callbackUrl, error, text, Header, Footer }) {
+export default function Login ({ providers, callbackUrl, error, multiAuth, text, Header, Footer }) {
   const [errorMessage, setErrorMessage] = useState(authErrorMessage(error))
   const router = useRouter()
 
   if (router.query.type === 'lightning') {
-    return <LightningAuthWithExplainer callbackUrl={callbackUrl} text={text} />
+    return <LightningAuthWithExplainer callbackUrl={callbackUrl} text={text} multiAuth={multiAuth} />
   }
 
   if (router.query.type === 'nostr') {
