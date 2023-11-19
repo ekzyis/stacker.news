@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import AnonIcon from '../svgs/spy-fill.svg'
 import { useRouter } from 'next/router'
 import cookie from 'cookie'
@@ -34,10 +34,16 @@ export const AccountProvider = ({ children }) => {
     setAccounts(accounts => accounts.filter(({ id }) => id !== userId))
   }, [setAccounts])
 
-  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount }}>{children}</AccountContext.Provider>
+  const isAnon = useMemo(() => {
+    const { 'multi_auth.user-id': multiAuthUserIdCookie } = cookie.parse(document.cookie)
+    if (!multiAuthUserIdCookie) return false
+    return multiAuthUserIdCookie === 'anonymous'
+  }, [document.cookie])
+
+  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon }}>{children}</AccountContext.Provider>
 }
 
-const useAccounts = () => useContext(AccountContext)
+export const useAccounts = () => useContext(AccountContext)
 
 const AnonAccount = () => {
   const me = useMe()

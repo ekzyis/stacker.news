@@ -19,8 +19,13 @@ const multiAuthMiddleware = (request) => {
   const sessionCookieName = '__Secure-next-auth.session-token'
   const hasSession = request.cookies?.has(sessionCookieName)
   if (userId && hasSession) {
-    const userJWT = request.cookies.get(`multi_auth.${userId}`)?.value
-    if (userJWT) request.cookies.set(sessionCookieName, userJWT)
+    if (userId === 'anonymous') {
+      // user switched to anon
+      request.cookies.delete(sessionCookieName)
+    } else {
+      const userJWT = request.cookies.get(`multi_auth.${userId}`)?.value
+      if (userJWT) request.cookies.set(sessionCookieName, userJWT)
+    }
   }
   const response = NextResponse.next({ request })
   return response

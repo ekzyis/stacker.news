@@ -28,7 +28,7 @@ import { clearNotifications } from '../lib/badge'
 import { useServiceWorker } from './serviceworker'
 import SubSelect from './sub-select'
 import { useShowModal } from './modal'
-import SwitchAccountDialog from './switch-account'
+import SwitchAccountDialog, { useAccounts } from './switch-account'
 
 function WalletSummary ({ me }) {
   if (!me) return null
@@ -177,6 +177,8 @@ function StackerCorner ({ dropNavKey }) {
 function LurkerCorner ({ path }) {
   const router = useRouter()
   const strike = useLightning()
+  const { isAnon } = useAccounts()
+  const showModal = useShowModal()
 
   useEffect(() => {
     if (!window.localStorage.getItem('striked')) {
@@ -192,6 +194,23 @@ function LurkerCorner ({ path }) {
     pathname,
     query: { callbackUrl: window.location.origin + router.asPath }
   }), [router])
+
+  if (isAnon) {
+    return (
+      <div className='d-flex ms-auto'>
+        <Dropdown className={styles.dropdown} align='end'>
+          <Dropdown.Toggle className='nav-link nav-item' id='profile' variant='custom'>
+            <Nav.Link eventKey='anon' as='span' className='p-0'>
+              <AnonIcon className='me-1 fill-muted' width={20} height={20} />@anon
+            </Nav.Link>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={() => showModal(onClose => <SwitchAccountDialog onClose={onClose} />)}>switch account</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+    )
+  }
 
   return path !== '/login' && path !== '/signup' && !path.startsWith('/invites') &&
     <div className='ms-auto'>
