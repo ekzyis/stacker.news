@@ -5,6 +5,7 @@ import cookie from 'cookie'
 import { useMe, useMeRefresh } from './me'
 import Image from 'react-bootstrap/Image'
 import Link from 'next/link'
+import { SSR } from '../lib/constants'
 
 const AccountContext = createContext()
 
@@ -35,10 +36,12 @@ export const AccountProvider = ({ children }) => {
   }, [setAccounts])
 
   const isAnon = useMemo(() => {
+    // document not defined on server
+    if (SSR) return false
     const { 'multi_auth.user-id': multiAuthUserIdCookie } = cookie.parse(document.cookie)
     if (!multiAuthUserIdCookie) return false
     return multiAuthUserIdCookie === 'anonymous'
-  }, [document.cookie])
+  }, [accounts])
 
   return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon }}>{children}</AccountContext.Provider>
 }
