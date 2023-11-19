@@ -123,10 +123,10 @@ async function pubkeyAuth (credentials, req, res, pubkeyColumnName) {
           res.appendHeader('Set-Cookie', cookie.serialize(`multi_auth.${me.id}`, tokenJWT, cookieOptions))
           res.appendHeader('Set-Cookie',
             cookie.serialize('multi_auth',
-              JSON.stringify([
+              Buffer.from(JSON.stringify([
                 { id: user.id, name: user.name, photoId: user.photoId },
                 { id: me.id, name: me.name, photoId: me.photoId }
-              ]),
+              ])).toString('base64'),
               { ...cookieOptions, httpOnly: false }))
           // don't switch accounts, we only want to add. switching is done in client via "pointer cookie"
           return token

@@ -8,16 +8,22 @@ import Link from 'next/link'
 
 const AccountContext = createContext()
 
+const b64Decode = str => Buffer.from(str, 'base64').toString('utf-8')
+
 export const AccountProvider = ({ children }) => {
   const me = useMe()
   const [accounts, setAccounts] = useState()
 
   useEffect(() => {
-    const { multi_auth: multiAuthCookie } = cookie.parse(document.cookie)
-    const accounts = multiAuthCookie
-      ? JSON.parse(multiAuthCookie)
-      : me ? [{ id: me.id, name: me.name, photoId: me.photoId }] : []
-    setAccounts(accounts)
+    try {
+      const { multi_auth: multiAuthCookie } = cookie.parse(document.cookie)
+      const accounts = multiAuthCookie
+        ? JSON.parse(b64Decode(multiAuthCookie))
+        : me ? [{ id: me.id, name: me.name, photoId: me.photoId }] : []
+      setAccounts(accounts)
+    } catch (err) {
+      console.error('error parsing cookies:', err)
+    }
   }, [])
 
   const addAccount = useCallback(user => {
