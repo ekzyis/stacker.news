@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import AnonIcon from '../svgs/spy-fill.svg'
 import { useRouter } from 'next/router'
 import cookie from 'cookie'
@@ -14,6 +14,7 @@ const b64Decode = str => Buffer.from(str, 'base64').toString('utf-8')
 export const AccountProvider = ({ children }) => {
   const me = useMe()
   const [accounts, setAccounts] = useState([])
+  const [isAnon, setIsAnon] = useState(true)
 
   useEffect(() => {
     try {
@@ -35,21 +36,21 @@ export const AccountProvider = ({ children }) => {
     setAccounts(accounts => accounts.filter(({ id }) => id !== userId))
   }, [setAccounts])
 
-  const isAnon = useMemo(() => {
+  useEffect(() => {
     // document not defined on server
-    if (SSR) return false
+    if (SSR) return
     const { 'multi_auth.user-id': multiAuthUserIdCookie } = cookie.parse(document.cookie)
     if (!multiAuthUserIdCookie) return false
-    return multiAuthUserIdCookie === 'anonymous'
-  }, [accounts])
+    setIsAnon(multiAuthUserIdCookie === 'anonymous')
+  }, [])
 
-  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon }}>{children}</AccountContext.Provider>
+  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon, setIsAnon }}>{children}</AccountContext.Provider>
 }
 
 export const useAccounts = () => useContext(AccountContext)
 
-const AnonAccount = () => {
-  const me = useMe()
+const AnonAccount = ({ selected, onClick }) => {
+  const { isAnon, setIsAnon } = useAccounts()
   const refreshMe = useMeRefresh()
   return (
     <div
@@ -57,13 +58,15 @@ const AnonAccount = () => {
     >
       <AnonIcon
         className='fill-muted'
-        width='135' height='135' style={{ cursor: 'pointer' }} onClick={() => {
+        width='135' height='135' style={{ cursor: 'pointer' }} onClick={async () => {
           document.cookie = 'multi_auth.user-id=anonymous'
-          refreshMe()
+          // order is important to prevent flashes of no session
+          setIsAnon(true)
+          await refreshMe()
         }}
       />
       <div className='fst-italic'>anonymous</div>
-      {!me && <div className='text-muted fst-italic'>selected</div>}
+      {isAnon && <div className='text-muted fst-italic'>selected</div>}
     </div>
   )
 }
@@ -71,15 +74,18 @@ const AnonAccount = () => {
 const Account = ({ account, className }) => {
   const me = useMe()
   const refreshMe = useMeRefresh()
+  const { setIsAnon } = useAccounts()
   const src = account.photoId ? `https://${process.env.NEXT_PUBLIC_MEDIA_DOMAIN}/${account.photoId}` : '/dorian400.jpg'
   return (
     <div
       className='d-flex flex-column me-2 my-1 text-center'
     >
       <Image
-        width='135' height='135' src={src} style={{ cursor: 'pointer' }} onClick={() => {
+        width='135' height='135' src={src} style={{ cursor: 'pointer' }} onClick={async () => {
           document.cookie = `multi_auth.user-id=${account.id}`
-          refreshMe()
+          await refreshMe()
+          // order is important to prevent flashes of inconsistent data in switch account dialog
+          setIsAnon(false)
         }}
       />
       <Link href={`/${account.name}`}>@{account.name}</Link>
