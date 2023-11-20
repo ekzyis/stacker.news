@@ -14,7 +14,7 @@ import { schnorr } from '@noble/curves/secp256k1'
 import { sendUserNotification } from '../../../api/webPush'
 import cookie from 'cookie'
 
-function getCallbacks (req) {
+function getCallbacks (req, res) {
   return {
     /**
      * @param  {object}  token     Decrypted JSON Web Token
@@ -36,6 +36,16 @@ function getCallbacks (req) {
         // setting it here allows us to link multiple auth method to an account
         // ... in v3 this linking field was token.user.id
         token.sub = Number(token.id)
+      }
+
+      // response is only defined during signup/login
+      if (req && res) {
+        req = new NodeNextRequest(req)
+        res = new NodeNextResponse(res)
+        const secret = process.env.NEXTAUTH_SECRET
+        const jwt = await encodeJWT({ token, secret })
+        const me = await prisma.user.findUnique({ where: { id: token.id } })
+        setMultiAuthCookies(req, res, { ...me, jwt })
       }
 
       if (isNewUser) {
@@ -79,6 +89,30 @@ function getCallbacks (req) {
   }
 }
 
+function setMultiAuthCookies (req, res, { id, jwt, name, photoId }) {
+  const b64Encode = obj => Buffer.from(JSON.stringify(obj)).toString('base64')
+  const b64Decode = s => JSON.parse(Buffer.from(s, 'base64'))
+  // default expiration for next-auth JWTs is in 1 month
+  const expiresAt = datePivot(new Date(), { months: 1 })
+  const cookieOptions = {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    expires: expiresAt
+  }
+  res.appendHeader('Set-Cookie', cookie.serialize(`multi_auth.${id}`, jwt, cookieOptions))
+  // don't overwrite multi auth cookie, only add
+  let newMultiAuth = [{ id, name, photoId }]
+  if (req.cookies.multi_auth) {
+    const oldMultiAuth = b64Decode(req.cookies.multi_auth)
+    // only add if multi auth does not exist yet
+    if (oldMultiAuth.some(({ id: id_ }) => id_ === id)) return
+    newMultiAuth = [...oldMultiAuth, ...newMultiAuth]
+  }
+  res.appendHeader('Set-Cookie', cookie.serialize('multi_auth', b64Encode(newMultiAuth), { ...cookieOptions, httpOnly: false }))
+}
+
 async function pubkeyAuth (credentials, req, res, pubkeyColumnName) {
   const { k1, pubkey, multiAuth } = credentials
   try {
@@ -90,45 +124,17 @@ async function pubkeyAuth (credentials, req, res, pubkeyColumnName) {
       if (!user) {
         // if we are logged in, update rather than create
         if (token?.id) {
-          // TODO: consider multiauth if logged in but user does not exist yet
+          // TODO: consider multi auth if logged in but user does not exist yet
           user = await prisma.user.update({ where: { id: token.id }, data: { [pubkeyColumnName]: pubkey } })
         } else {
           user = await prisma.user.create({ data: { name: pubkey.slice(0, 10), [pubkeyColumnName]: pubkey } })
         }
       } else if (token && token?.id !== user.id) {
         if (multiAuth) {
-          // we want to add a new account to 'switch accounts'
-          const secret = process.env.NEXTAUTH_SECRET
-          // default expiration for next-auth JWTs is in 1 month
-          const expiresAt = datePivot(new Date(), { months: 1 })
-          const cookieOptions = {
-            path: '/',
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            expires: expiresAt
-          }
-          const userJWT = await encodeJWT({
-            token: {
-              id: user.id,
-              name: user.name,
-              email: user.email
-            },
-            secret
-          })
-          const me = await prisma.user.findUnique({ where: { id: token.id } })
-          const tokenJWT = await encodeJWT({ token, secret })
-          // NOTE: why can't I put this in a function with a for loop?!
-          res.appendHeader('Set-Cookie', cookie.serialize(`multi_auth.${user.id}`, userJWT, cookieOptions))
-          res.appendHeader('Set-Cookie', cookie.serialize(`multi_auth.${me.id}`, tokenJWT, cookieOptions))
-          res.appendHeader('Set-Cookie',
-            cookie.serialize('multi_auth',
-              Buffer.from(JSON.stringify([
-                { id: user.id, name: user.name, photoId: user.photoId },
-                { id: me.id, name: me.name, photoId: me.photoId }
-              ])).toString('base64'),
-              { ...cookieOptions, httpOnly: false }))
           // don't switch accounts, we only want to add. switching is done in client via "pointer cookie"
+          const secret = process.env.NEXTAUTH_SECRET
+          const userJWT = await encodeJWT({ token: { id: user.id, name: user.name, email: user.email }, secret })
+          setMultiAuthCookies(req, res, { ...user, jwt: userJWT })
           return token
         }
         return null
@@ -229,7 +235,7 @@ const getProviders = res => [
 ]
 
 export const getAuthOptions = (req, res) => ({
-  callbacks: getCallbacks(req),
+  callbacks: getCallbacks(req, res),
   providers: getProviders(res),
   adapter: PrismaAdapter(prisma),
   session: {

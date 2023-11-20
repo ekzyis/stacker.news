@@ -13,7 +13,7 @@ const b64Decode = str => Buffer.from(str, 'base64').toString('utf-8')
 
 export const AccountProvider = ({ children }) => {
   const me = useMe()
-  const [accounts, setAccounts] = useState()
+  const [accounts, setAccounts] = useState([])
 
   useEffect(() => {
     try {
