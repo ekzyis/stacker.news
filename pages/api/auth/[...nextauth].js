@@ -123,7 +123,8 @@ async function pubkeyAuth (credentials, req, res, pubkeyColumnName) {
       const token = await getToken({ req })
       if (!user) {
         // if we are logged in, update rather than create
-        if (token?.id) {
+        // never update account if multi auth is used, only create
+        if (token?.id && !multiAuth) {
           // TODO: consider multi auth if logged in but user does not exist yet
           user = await prisma.user.update({ where: { id: token.id }, data: { [pubkeyColumnName]: pubkey } })
         } else {
