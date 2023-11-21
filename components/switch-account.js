@@ -38,6 +38,10 @@ export const AccountProvider = ({ children }) => {
     setAccounts(accounts => accounts.filter(({ id }) => id !== userId))
   }, [setAccounts])
 
+  const resetMultiAuthPointer = useCallback(() => {
+    document.cookie = 'multi_auth.user-id='
+  }, [])
+
   useEffect(() => {
     // document not defined on server
     if (SSR) return
@@ -45,7 +49,7 @@ export const AccountProvider = ({ children }) => {
     setIsAnon(multiAuthUserIdCookie === 'anonymous')
   }, [])
 
-  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon, setIsAnon }}>{children}</AccountContext.Provider>
+  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon, setIsAnon, resetMultiAuthPointer }}>{children}</AccountContext.Provider>
 }
 
 export const useAccounts = () => useContext(AccountContext)

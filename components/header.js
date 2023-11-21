@@ -89,6 +89,7 @@ function NotificationBell () {
 function NavProfileMenu ({ me, dropNavKey }) {
   const { registration: swRegistration, togglePushSubscription } = useServiceWorker()
   const showModal = useShowModal()
+  const { resetMultiAuthPointer } = useAccounts()
   return (
     <div className='position-relative'>
       <Dropdown className={styles.dropdown} align='end'>
@@ -140,6 +141,7 @@ function NavProfileMenu ({ me, dropNavKey }) {
                 // don't prevent signout because of an unsubscription error
                 console.error(err)
               }
+              resetMultiAuthPointer()
               await signOut({ callbackUrl: '/' })
             }}
           >logout
