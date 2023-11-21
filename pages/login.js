@@ -23,8 +23,8 @@ export async function getServerSideProps ({ req, res, query: { callbackUrl, mult
   }
 
   if (session && callbackUrl && !multiAuth) {
-    // in the cause of auth linking we want to pass the error back to settings
-    // in the case of multiauth, don't redirect if there is already a session
+    // in the case of auth linking we want to pass the error back to settings
+    // in the case of multi auth, don't redirect if there is already a session
     if (error) {
       const url = new URL(callbackUrl, process.env.PUBLIC_URL)
       url.searchParams.set('error', error)
