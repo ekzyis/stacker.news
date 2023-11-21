@@ -42,7 +42,6 @@ export const AccountProvider = ({ children }) => {
     // document not defined on server
     if (SSR) return
     const { 'multi_auth.user-id': multiAuthUserIdCookie } = cookie.parse(document.cookie)
-    if (!multiAuthUserIdCookie) return false
     setIsAnon(multiAuthUserIdCookie === 'anonymous')
   }, [])
 
