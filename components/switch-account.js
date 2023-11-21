@@ -6,6 +6,8 @@ import { useMe, useMeRefresh } from './me'
 import Image from 'react-bootstrap/Image'
 import Link from 'next/link'
 import { SSR } from '../lib/constants'
+import { USER } from '../fragments/users'
+import { useQuery } from '@apollo/client'
 
 const AccountContext = createContext()
 
@@ -73,9 +75,22 @@ const AnonAccount = ({ selected, onClick }) => {
 
 const Account = ({ account, className }) => {
   const me = useMe()
+  const [name, setName] = useState(account.name)
+  const [src, setSrc] = useState(account.photoId || '/dorian400.jpg')
   const refreshMe = useMeRefresh()
   const { setIsAnon } = useAccounts()
-  const src = account.photoId ? `https://${process.env.NEXT_PUBLIC_MEDIA_DOMAIN}/${account.photoId}` : '/dorian400.jpg'
+  useQuery(USER,
+    {
+      variables: { id: account.id },
+      onCompleted ({ user: { name, photoId } }) {
+        if (photoId) {
+          const src = `https://${process.env.NEXT_PUBLIC_MEDIA_DOMAIN}/${photoId}`
+          setSrc(src)
+        }
+        setName(name)
+      }
+    }
+  )
   return (
     <div
       className='d-flex flex-column me-2 my-1 text-center'
@@ -88,7 +103,7 @@ const Account = ({ account, className }) => {
           setIsAnon(false)
         }}
       />
-      <Link href={`/${account.name}`}>@{account.name}</Link>
+      <Link href={`/${account.name}`}>@{name}</Link>
       {Number(me?.id) === Number(account.id) && <div className='text-muted fst-italic'>selected</div>}
     </div>
   )
