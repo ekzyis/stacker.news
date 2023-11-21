@@ -61,7 +61,7 @@ const AnonAccount = ({ selected, onClick }) => {
       <AnonIcon
         className='fill-muted'
         width='135' height='135' style={{ cursor: 'pointer' }} onClick={async () => {
-          document.cookie = 'multi_auth.user-id=anonymous'
+          document.cookie = 'multi_auth.user-id=anonymous; Secure'
           // order is important to prevent flashes of no session
           setIsAnon(true)
           await refreshMe()
@@ -97,7 +97,7 @@ const Account = ({ account, className }) => {
     >
       <Image
         width='135' height='135' src={src} style={{ cursor: 'pointer' }} onClick={async () => {
-          document.cookie = `multi_auth.user-id=${account.id}`
+          document.cookie = `multi_auth.user-id=${account.id}; Secure`
           await refreshMe()
           // order is important to prevent flashes of inconsistent data in switch account dialog
           setIsAnon(false)
