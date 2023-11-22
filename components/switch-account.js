@@ -129,7 +129,7 @@ const AddAccount = () => {
   return (
     <div className='d-flex flex-column me-2 my-1 text-center'>
       <Image
-        width='135' height='135' src='https://imgs.search.brave.com/t8qv-83e1m_kaajLJoJ0GNID5ch0WvBGmy7Pkyr4kQY/rs:fit:860:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy84/Lzg5L1BvcnRyYWl0/X1BsYWNlaG9sZGVy/LnBuZw' style={{ cursor: 'pointer' }} onClick={() => {
+        width='135' height='135' src='/Portrait_Placeholder.webp' style={{ cursor: 'pointer' }} onClick={() => {
           router.push({
             pathname: '/login',
             query: { callbackUrl: window.location.origin + router.asPath, multiAuth: true }
