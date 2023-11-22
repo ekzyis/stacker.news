@@ -141,7 +141,6 @@ export default function SwitchAccountDialog () {
   const { accounts } = useAccounts()
   return (
     <>
-      <h3>Switch Account</h3>
       <div className='my-2'>
         <div className='d-flex flex-row flex-wrap'>
           <AnonAccount />
