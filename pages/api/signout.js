@@ -32,18 +32,18 @@ export default (req, res) => {
   // remove JWT pointed to by cookie pointer
   cookies.push(cookie.serialize(`multi_auth.${userId}`, '', { ...cookieOptions, expires: 0, maxAge: 0 }))
 
-  // update multi_auth cookie
+  // update multi_auth cookie and check if there are more accounts available
   const oldMultiAuth = b64Decode(req.cookies.multi_auth)
   const newMultiAuth = oldMultiAuth.filter(({ id }) => id !== Number(userId))
-  cookies.push(cookie.serialize('multi_auth', b64Encode(newMultiAuth), { ...cookieOptions, httpOnly: false }))
-
-  // switch to next available account
-  if (!newMultiAuth.length) {
-    // no next account available
+  if (newMultiAuth.length === 0) {
+    // no next account available. cleanup: remove multi_auth + pointer cookie
+    cookies.push(cookie.serialize('multi_auth', '', { ...cookieOptions, httpOnly: false, expires: 0, maxAge: 0 }))
+    cookies.push(cookie.serialize('multi_auth.user-id', '', { ...cookieOptions, httpOnly: false, expires: 0, maxAge: 0 }))
     res.setHeader('Set-Cookie', cookies)
     res.status(204).end()
     return
   }
+  cookies.push(cookie.serialize('multi_auth', b64Encode(newMultiAuth), { ...cookieOptions, httpOnly: false }))
 
   const newUserId = newMultiAuth[0].id
   const newUserJWT = req.cookies[`multi_auth.${newUserId}`]
