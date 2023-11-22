@@ -24,8 +24,6 @@ export const AccountProvider = ({ children }) => {
       const accounts = multiAuthCookie
         ? JSON.parse(b64Decode(multiAuthCookie))
         : me ? [{ id: me.id, name: me.name, photoId: me.photoId }] : []
-      console.log(accounts)
-      if (multiAuthCookie) console.log(JSON.parse(b64Decode(multiAuthCookie)))
       setAccounts(accounts)
     } catch (err) {
       console.error('error parsing cookies:', err)
@@ -48,7 +46,6 @@ export const AccountProvider = ({ children }) => {
     // document.cookie = 'multi_auth.user-id='
     // switch to next available account
     const { status } = await fetch('/api/signout', { credentials: 'include' })
-    console.log('multiAuthSignout rseponse', status)
     if (status === 201) updateAccountsFromCookie()
     return status
   }, [updateAccountsFromCookie])
@@ -111,7 +108,6 @@ const Account = ({ account, className }) => {
     >
       <Image
         width='135' height='135' src={src} style={{ cursor: 'pointer' }} onClick={async () => {
-          console.log('switching to account', account.id)
           document.cookie = `multi_auth.user-id=${account.id}; Path=/; Secure`
           await refreshMe()
           // order is important to prevent flashes of inconsistent data in switch account dialog
