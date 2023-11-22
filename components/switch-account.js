@@ -18,16 +18,22 @@ export const AccountProvider = ({ children }) => {
   const [accounts, setAccounts] = useState([])
   const [isAnon, setIsAnon] = useState(true)
 
-  useEffect(() => {
+  const updateAccountsFromCookie = useCallback(() => {
     try {
       const { multi_auth: multiAuthCookie } = cookie.parse(document.cookie)
       const accounts = multiAuthCookie
         ? JSON.parse(b64Decode(multiAuthCookie))
         : me ? [{ id: me.id, name: me.name, photoId: me.photoId }] : []
+      console.log(accounts)
+      if (multiAuthCookie) console.log(JSON.parse(b64Decode(multiAuthCookie)))
       setAccounts(accounts)
     } catch (err) {
       console.error('error parsing cookies:', err)
     }
+  }, [setAccounts])
+
+  useEffect(() => {
+    updateAccountsFromCookie()
   }, [])
 
   const addAccount = useCallback(user => {
@@ -38,9 +44,14 @@ export const AccountProvider = ({ children }) => {
     setAccounts(accounts => accounts.filter(({ id }) => id !== userId))
   }, [setAccounts])
 
-  const resetMultiAuthPointer = useCallback(() => {
-    document.cookie = 'multi_auth.user-id='
-  }, [])
+  const multiAuthSignout = useCallback(async () => {
+    // document.cookie = 'multi_auth.user-id='
+    // switch to next available account
+    const { status } = await fetch('/api/signout', { credentials: 'include' })
+    console.log('multiAuthSignout rseponse', status)
+    if (status === 201) updateAccountsFromCookie()
+    return status
+  }, [updateAccountsFromCookie])
 
   useEffect(() => {
     // document not defined on server
@@ -49,7 +60,7 @@ export const AccountProvider = ({ children }) => {
     setIsAnon(multiAuthUserIdCookie === 'anonymous')
   }, [])
 
-  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon, setIsAnon, resetMultiAuthPointer }}>{children}</AccountContext.Provider>
+  return <AccountContext.Provider value={{ accounts, addAccount, removeAccount, isAnon, setIsAnon, multiAuthSignout }}>{children}</AccountContext.Provider>
 }
 
 export const useAccounts = () => useContext(AccountContext)
@@ -100,6 +111,7 @@ const Account = ({ account, className }) => {
     >
       <Image
         width='135' height='135' src={src} style={{ cursor: 'pointer' }} onClick={async () => {
+          console.log('switching to account', account.id)
           document.cookie = `multi_auth.user-id=${account.id}; Path=/; Secure`
           await refreshMe()
           // order is important to prevent flashes of inconsistent data in switch account dialog

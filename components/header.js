@@ -89,7 +89,7 @@ function NotificationBell () {
 function NavProfileMenu ({ me, dropNavKey }) {
   const { registration: swRegistration, togglePushSubscription } = useServiceWorker()
   const showModal = useShowModal()
-  const { resetMultiAuthPointer } = useAccounts()
+  const { multiAuthSignout } = useAccounts()
   return (
     <div className='position-relative'>
       <Dropdown className={styles.dropdown} align='end'>
@@ -131,6 +131,9 @@ function NavProfileMenu ({ me, dropNavKey }) {
           <Dropdown.Item onClick={() => showModal(onClose => <SwitchAccountDialog onClose={onClose} />)}>switch account</Dropdown.Item>
           <Dropdown.Item
             onClick={async () => {
+              const status = await multiAuthSignout()
+              // only signout if multiAuth did not find a next available account
+              if (status === 201) return
               try {
                 // order is important because we need to be logged in to delete push subscription on server
                 const pushSubscription = await swRegistration?.pushManager.getSubscription()
@@ -141,7 +144,6 @@ function NavProfileMenu ({ me, dropNavKey }) {
                 // don't prevent signout because of an unsubscription error
                 console.error(err)
               }
-              resetMultiAuthPointer()
               await signOut({ callbackUrl: '/' })
             }}
           >logout
