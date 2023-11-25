@@ -55,6 +55,13 @@ export default function Settings ({ ssrData }) {
   const { settings: { privates: settings } } = data || ssrData
   if (!data && !ssrData) return <PageLoading />
 
+  // if we switched to anon, me is no longer defined
+  const router = useRouter()
+  if (!me) {
+    router.push('/login')
+    return null
+  }
+
   return (
     <CenterLayout>
       <div className='py-3 w-100'>
