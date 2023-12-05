@@ -41,9 +41,11 @@ export const AccountProvider = ({ children }) => {
   }, [setAccounts])
 
   const multiAuthSignout = useCallback(async () => {
-    // document.cookie = 'multi_auth.user-id='
     // switch to next available account
     const { status } = await fetch('/api/signout', { credentials: 'include' })
+    // if status is 201, this mean the server was able to switch us to the next available account
+    // and the current account was simply removed from the list of available accounts including the corresponding JWT.
+    // -> update needed to sync state with cookies
     if (status === 201) updateAccountsFromCookie()
     return status
   }, [updateAccountsFromCookie])
