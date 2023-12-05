@@ -28,7 +28,7 @@ import { clearNotifications } from '../lib/badge'
 import { useServiceWorker } from './serviceworker'
 import SubSelect from './sub-select'
 import { useShowModal } from './modal'
-import SwitchAccountDialog, { useAccounts } from './switch-account'
+import SwitchAccountList, { useAccounts } from './switch-account'
 
 function WalletSummary ({ me }) {
   if (!me) return null
@@ -128,7 +128,7 @@ function NavProfileMenu ({ me, dropNavKey }) {
             </Link>
           </div>
           <Dropdown.Divider />
-          <Dropdown.Item onClick={() => showModal(onClose => <SwitchAccountDialog onClose={onClose} />)}>switch account</Dropdown.Item>
+          <Dropdown.Item onClick={() => showModal(onClose => <SwitchAccountList onClose={onClose} />)}>switch account</Dropdown.Item>
           <Dropdown.Item
             onClick={async () => {
               const status = await multiAuthSignout()
@@ -209,7 +209,7 @@ function LurkerCorner ({ path }) {
             </Nav.Link>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item onClick={() => showModal(onClose => <SwitchAccountDialog onClose={onClose} />)}>switch account</Dropdown.Item>
+            <Dropdown.Item onClick={() => showModal(onClose => <SwitchAccountList onClose={onClose} />)}>switch account</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
