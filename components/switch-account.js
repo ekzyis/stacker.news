@@ -93,7 +93,7 @@ const AccountListRow = ({ account, ...props }) => {
       setIsAnon(account.id === ANON_USER_ID)
     }
   }
-  // can't show hat since we don't have access to the streak from the data available in the cookies
+
   return (
     <div className='d-flex flex-row'>
       <UserListRow user={{ ...account, photoId, name }} className='d-flex align-items-center me-2' {...props} onNymClick={onClick} />
@@ -111,11 +111,11 @@ export default function SwitchAccountList () {
       query: { callbackUrl: window.location.origin + router.asPath, multiAuth: true }
     })
   }
+  // can't show hat since the streak is not included in the JWT payload
   return (
     <>
       <div className='my-2'>
         <div className='d-flex flex-column flex-wrap'>
-
           <AccountListRow account={{ id: ANON_USER_ID, name: 'anon' }} showHat={false} />
           {
 
