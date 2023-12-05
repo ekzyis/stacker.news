@@ -159,7 +159,7 @@ function NavProfileMenu ({ me, dropNavKey }) {
 }
 
 function StackerCorner ({ dropNavKey }) {
-  const me = useMe()
+  const { me } = useMe()
 
   const walletLimitReached = me.privates?.sats >= msatsToSats(BALANCE_LIMIT_MSATS)
 
@@ -276,7 +276,7 @@ function NavItems ({ className, sub, prefix }) {
 }
 
 function PostItem ({ className, prefix }) {
-  const me = useMe()
+  const { me } = useMe()
 
   if (me) {
     return (
@@ -302,7 +302,7 @@ export default function Header ({ sub }) {
   const prefix = sub ? `/~${sub}` : ''
   const topNavKey = path.split('/')[sub ? 2 : 1] ?? ''
   const dropNavKey = path.split('/').slice(sub ? 2 : 1).join('/')
-  const me = useMe()
+  const { me } = useMe()
 
   return (
     <Container as='header' className='px-sm-0'>

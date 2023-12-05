@@ -15,18 +15,12 @@ export function MeProvider ({ me, children }) {
   const futureMe = data?.me ?? (data?.me === null ? null : me)
 
   return (
-    <MeContext.Provider value={{ me: futureMe, refetch }}>
+    <MeContext.Provider value={{ me: futureMe, refreshMe: refetch }}>
       {children}
     </MeContext.Provider>
   )
 }
 
 export function useMe () {
-  const { me } = useContext(MeContext)
-  return me
-}
-
-export function useMeRefresh () {
-  const { refetch } = useContext(MeContext)
-  return refetch
+  return useContext(MeContext)
 }

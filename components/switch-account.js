@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import AnonIcon from '../svgs/spy-fill.svg'
 import { useRouter } from 'next/router'
 import cookie from 'cookie'
-import { useMe, useMeRefresh } from './me'
+import { useMe } from './me'
 import Image from 'react-bootstrap/Image'
 import Link from 'next/link'
 import { SSR } from '../lib/constants'
@@ -14,7 +14,7 @@ const AccountContext = createContext()
 const b64Decode = str => Buffer.from(str, 'base64').toString('utf-8')
 
 export const AccountProvider = ({ children }) => {
-  const me = useMe()
+  const { me } = useMe()
   const [accounts, setAccounts] = useState([])
   const [isAnon, setIsAnon] = useState(true)
 
@@ -64,7 +64,7 @@ export const useAccounts = () => useContext(AccountContext)
 
 const AnonAccount = ({ selected, onClick }) => {
   const { isAnon, setIsAnon } = useAccounts()
-  const refreshMe = useMeRefresh()
+  const { refreshMe } = useMe()
   return (
     <div
       className='d-flex flex-column me-2 my-1 text-center'
@@ -85,10 +85,10 @@ const AnonAccount = ({ selected, onClick }) => {
 }
 
 const Account = ({ account, className }) => {
-  const me = useMe()
+  const { me } = useMe()
   const [name, setName] = useState(account.name)
   const [src, setSrc] = useState(account.photoId || '/dorian400.jpg')
-  const refreshMe = useMeRefresh()
+  const { refreshMe } = useMe()
   const { setIsAnon } = useAccounts()
   useQuery(USER,
     {

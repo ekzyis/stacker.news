@@ -35,7 +35,7 @@ function bech32encode (hexString) {
 
 export default function Settings ({ ssrData }) {
   const toaster = useToast()
-  const me = useMe()
+  const { me } = useMe()
   const [setSettings] = useMutation(SET_SETTINGS, {
     update (cache, { data: { setSettings } }) {
       cache.modify({

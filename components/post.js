@@ -16,7 +16,7 @@ import Delete from './delete'
 import CancelButton from './cancel-button'
 
 export function PostForm ({ type, sub, children }) {
-  const me = useMe()
+  const { me } = useMe()
   const [errorMessage, setErrorMessage] = useState()
 
   const prefix = sub?.name ? `/~${sub.name}` : ''
