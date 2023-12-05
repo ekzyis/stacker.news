@@ -79,7 +79,9 @@ const AccountListRow = ({ account, ...props }) => {
     }
   )
 
-  const onClick = async () => {
+  const onClick = async (e) => {
+    // prevent navigation
+    e.preventDefault()
     document.cookie = `multi_auth.user-id=${anonRow ? 'anonymous' : account.id}; Path=/; Secure`
     if (anonRow) {
       // order is important to prevent flashes of no session
@@ -94,8 +96,7 @@ const AccountListRow = ({ account, ...props }) => {
   // can't show hat since we don't have access to the streak from the data available in the cookies
   return (
     <div className='d-flex flex-row'>
-      <UserListRow user={{ ...account, photoId, name }} className='d-flex align-items-center me-2' {...props} />
-      <div className='me-2' style={{ cursor: 'pointer' }} onClick={onClick}>switch</div>
+      <UserListRow user={{ ...account, photoId, name }} className='d-flex align-items-center me-2' {...props} onNymClick={onClick} />
       {selected && <div className='text-muted fst-italic text-muted'>selected</div>}
     </div>
   )

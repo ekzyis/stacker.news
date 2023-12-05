@@ -36,7 +36,7 @@ function seperate (arr, seperator) {
   return arr.flatMap((x, i) => i < arr.length - 1 ? [x, seperator] : [x])
 }
 
-export const UserListRow = ({ user, stats, className, showHat = true }) => {
+export const UserListRow = ({ user, stats, className, onNymClick, showHat = true }) => {
   return (
     <div className={`${styles.item} mb-2`} key={user.name}>
       <Link href={`/${user.name}`}>
@@ -46,7 +46,9 @@ export const UserListRow = ({ user, stats, className, showHat = true }) => {
         />
       </Link>
       <div className={`${styles.hunk} ${className}`}>
-        <Link href={`/${user.name}`} className={`${styles.title} d-inline-flex align-items-center text-reset`}>
+        <Link
+          href={`/${user.name}`} className={`${styles.title} d-inline-flex align-items-center text-reset`} onClick={onNymClick}
+        >
           @{user.name}{showHat && <Hat className='ms-1 fill-grey' height={14} width={14} user={user} />}
         </Link>
         {stats && (
