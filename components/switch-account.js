@@ -10,6 +10,7 @@ import { UserListRow } from './user-list'
 const AccountContext = createContext()
 
 const b64Decode = str => Buffer.from(str, 'base64').toString('utf-8')
+const b64Encode = obj => Buffer.from(JSON.stringify(obj)).toString('base64')
 
 export const AccountProvider = ({ children }) => {
   const { me } = useMe()
@@ -21,8 +22,13 @@ export const AccountProvider = ({ children }) => {
       const { multi_auth: multiAuthCookie } = cookie.parse(document.cookie)
       const accounts = multiAuthCookie
         ? JSON.parse(b64Decode(multiAuthCookie))
-        : me ? [{ id: me.id, name: me.name, photoId: me.photoId }] : []
+        : me ? [{ id: Number(me.id), name: me.name, photoId: me.photoId }] : []
       setAccounts(accounts)
+      // required for backwards compatibility: sync cookie with accounts if no multi auth cookie exists
+      // this is the case for sessions that existed before we deployed account switching
+      if (!multiAuthCookie && !!me) {
+        document.cookie = `multi_auth=${b64Encode(accounts)}; Path=/; Secure`
+      }
     } catch (err) {
       console.error('error parsing cookies:', err)
     }
