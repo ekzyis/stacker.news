@@ -120,7 +120,6 @@ export default function SwitchAccountList () {
         <div className='d-flex flex-column flex-wrap'>
           <AccountListRow account={{ id: ANON_USER_ID, name: 'anon' }} showHat={false} />
           {
-
             accounts.map((account) => <AccountListRow key={account.id} account={account} showHat={false} />)
           }
           <div style={{ cursor: 'pointer' }} onClick={addAccount}>+ add account</div>
