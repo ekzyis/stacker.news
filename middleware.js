@@ -57,3 +57,12 @@ export function middleware (request) {
   }
   return multiAuthMiddleware(request)
 }
+
+export const config = {
+  matcher: [
+    // referrals
+    '/(.*/|)r/([\\w_]+)([?#]?.*)',
+    // account switching
+    '/api/graphql', '/_next/data/(.*)'
+  ]
+}
