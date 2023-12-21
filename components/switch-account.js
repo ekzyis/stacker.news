@@ -4,7 +4,7 @@ import cookie from 'cookie'
 import { useMe } from './me'
 import { ANON_USER_ID, SSR } from '../lib/constants'
 import { USER } from '../fragments/users'
-import { useQuery } from '@apollo/client'
+import { useApolloClient, useQuery } from '@apollo/client'
 import { UserListRow } from './user-list'
 
 const AccountContext = createContext()
@@ -73,6 +73,7 @@ const AccountListRow = ({ account, ...props }) => {
   const { me, refreshMe } = useMe()
   const anonRow = account.id === ANON_USER_ID
   const selected = (isAnon && anonRow) || Number(me?.id) === Number(account.id)
+  const client = useApolloClient()
 
   // fetch updated names and photo ids since they might have changed since we were issued the JWTs
   const [name, setName] = useState(account.name)
@@ -100,6 +101,7 @@ const AccountListRow = ({ account, ...props }) => {
       // order is important to prevent flashes of inconsistent data in switch account dialog
       setIsAnon(account.id === ANON_USER_ID)
     }
+    await client.refetchQueries({ include: 'active' })
   }
 
   return (
