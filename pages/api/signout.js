@@ -11,7 +11,7 @@ export default (req, res) => {
   const cookiePointerName = 'multi_auth.user-id'
   const userId = req.cookies[cookiePointerName]
   // is there a session?
-  const sessionCookieName = 'next-auth.session-token'
+  const sessionCookieName = '__Secure-next-auth.session-token'
   const sessionJWT = req.cookies[sessionCookieName]
 
   if (!userId || !sessionJWT) {

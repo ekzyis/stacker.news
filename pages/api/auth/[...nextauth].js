@@ -251,7 +251,7 @@ export const getAuthOptions = (req, res) => ({
   },
   cookies: {
     sessionToken: {
-      name: 'next-auth.session-token',
+      name: '__Secure-next-auth.session-token',
       options: {
         httpOnly: true,
         sameSite: 'lax',

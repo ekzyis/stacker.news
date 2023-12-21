@@ -20,7 +20,7 @@ const multiAuthMiddleware = (request) => {
   const cookiePointerName = 'multi_auth.user-id'
   const hasCookiePointer = request.cookies?.has(cookiePointerName)
   // is there a session?
-  const sessionCookieName = 'next-auth.session-token'
+  const sessionCookieName = '__Secure-next-auth.session-token'
   const hasSession = request.cookies?.has(sessionCookieName)
 
   if (!hasCookiePointer || !hasSession) {
