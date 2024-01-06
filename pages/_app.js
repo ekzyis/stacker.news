@@ -18,7 +18,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { LoggerProvider } from '../components/logger'
 import { ChainFeeProvider } from '../components/chain-fee.js'
-import { AccountProvider } from '../components/switch-account'
+import { AccountProvider } from '../components/account'
 import dynamic from 'next/dynamic'
 
 const PWAPrompt = dynamic(() => import('react-ios-pwa-prompt'), { ssr: false })

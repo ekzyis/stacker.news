@@ -28,7 +28,7 @@ import { clearNotifications } from '../lib/badge'
 import { useServiceWorker } from './serviceworker'
 import SubSelect from './sub-select'
 import { useShowModal } from './modal'
-import SwitchAccountList, { useAccounts } from './switch-account'
+import SwitchAccountList, { useAccounts } from './account'
 
 function WalletSummary ({ me }) {
   if (!me) return null
