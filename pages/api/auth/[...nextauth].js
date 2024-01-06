@@ -97,7 +97,7 @@ function setMultiAuthCookies (req, res, { id, jwt, name, photoId }) {
   const cookieOptions = {
     path: '/',
     httpOnly: true,
-    secure: true,
+    secure: req.secure,
     sameSite: 'lax',
     expires: expiresAt
   }
@@ -248,17 +248,6 @@ export const getAuthOptions = (req, res) => ({
     signIn: '/login',
     verifyRequest: '/email',
     error: '/auth/error'
-  },
-  cookies: {
-    sessionToken: {
-      name: '__Secure-next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true
-      }
-    }
   }
 })
 

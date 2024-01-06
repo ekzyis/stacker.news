@@ -11,7 +11,7 @@ export default (req, res) => {
   const cookiePointerName = 'multi_auth.user-id'
   const userId = req.cookies[cookiePointerName]
   // is there a session?
-  const sessionCookieName = '__Secure-next-auth.session-token'
+  const sessionCookieName = req.secure ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   const sessionJWT = req.cookies[sessionCookieName]
 
   if (!userId || !sessionJWT) {
@@ -24,7 +24,7 @@ export default (req, res) => {
 
   const cookieOptions = {
     path: '/',
-    secure: true,
+    secure: req.secure,
     httpOnly: true,
     sameSite: 'lax',
     expires: datePivot(new Date(), { months: 1 })

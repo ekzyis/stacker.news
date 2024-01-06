@@ -12,6 +12,10 @@ const AccountContext = createContext()
 const b64Decode = str => Buffer.from(str, 'base64').toString('utf-8')
 const b64Encode = obj => Buffer.from(JSON.stringify(obj)).toString('base64')
 
+const secureCookie = cookie => {
+  return window.location.protocol === 'https:' ? cookie + '; Secure' : cookie
+}
+
 export const AccountProvider = ({ children }) => {
   const { me } = useMe()
   const [accounts, setAccounts] = useState([])
@@ -27,7 +31,7 @@ export const AccountProvider = ({ children }) => {
       // required for backwards compatibility: sync cookie with accounts if no multi auth cookie exists
       // this is the case for sessions that existed before we deployed account switching
       if (!multiAuthCookie && !!me) {
-        document.cookie = `multi_auth=${b64Encode(accounts)}; Path=/; Secure`
+        document.cookie = secureCookie(`multi_auth=${b64Encode(accounts)}; Path=/`)
       }
     } catch (err) {
       console.error('error parsing cookies:', err)
@@ -91,7 +95,7 @@ const AccountListRow = ({ account, ...props }) => {
   const onClick = async (e) => {
     // prevent navigation
     e.preventDefault()
-    document.cookie = `multi_auth.user-id=${anonRow ? 'anonymous' : account.id}; Path=/; Secure`
+    document.cookie = secureCookie(`multi_auth.user-id=${anonRow ? 'anonymous' : account.id}; Path=/`)
     if (anonRow) {
       // order is important to prevent flashes of no session
       setIsAnon(true)
