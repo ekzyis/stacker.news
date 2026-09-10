@@ -2,7 +2,7 @@ import createPrisma from '@/lib/create-prisma'
 import { USER_ID } from '@/lib/constants'
 import pay from '@/api/payIn'
 
-const TOTAL_UPPER_BOUND_MSATS = 1_000_000_000
+const TOTAL_UPPER_BOUND_MSATS = 2_000_000_000
 const PERCENTILE_CUTOFF = 50
 const ZAP_THRESHOLD = 20
 const EACH_ZAP_PORTION = 2.0
