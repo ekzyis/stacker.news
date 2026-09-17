@@ -515,7 +515,6 @@ async function sendVerificationRequest ({
   token,
   provider
 }, req) {
-
   // do not process invalid email addresses
   if (/[,;<>"\s]/.test(email) || email.length > 254) {
     return new Promise((resolve, reject) => {
